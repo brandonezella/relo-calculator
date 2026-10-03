@@ -22,7 +22,7 @@
   </script>
 
   <style>
-    /* Custom scrollbar and input styling */
+    /* Custom scrollbar and input resets */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #090d16; }
     ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
@@ -57,23 +57,12 @@
         <button
           type="button"
           onclick="openListingModal()"
-          class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all shadow-md shadow-emerald-600/20"
+          class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3.5 py-2 rounded-xl flex items-center gap-2 transition-all shadow-md shadow-emerald-600/20 active:scale-95"
         >
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
           </svg>
-          <span>Import Listing (Zillow)</span>
-        </button>
-
-        <button
-          type="button"
-          onclick="switchTab('tests')"
-          class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition"
-        >
-          <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span>Run Test Suite</span>
+          <span>Import Listing (Zillow/Redfin)</span>
         </button>
       </div>
     </div>
@@ -85,59 +74,186 @@
     <p id="toastMessage" class="text-xs font-semibold"></p>
   </div>
 
-  <!-- Real Estate Listing Import Modal -->
-  <div id="listingModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg p-5 shadow-2xl relative space-y-4">
+  <!-- Real Estate Listing Hybrid Import Modal -->
+  <div id="listingModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-xl p-6 shadow-2xl relative space-y-4 my-8">
       <button
         type="button"
         onclick="closeListingModal()"
-        class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
+        class="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition"
       >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
 
-      <div class="flex items-center gap-2.5">
-        <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <div class="flex items-center gap-3">
+        <div class="p-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
           </svg>
         </div>
         <div>
-          <h3 class="text-sm font-bold text-white">Import Real Estate Listing</h3>
-          <p class="text-xs text-slate-400">Paste a Zillow / Redfin URL or raw property description</p>
+          <h3 class="text-base font-bold text-white">Import Real Estate Listing</h3>
+          <p class="text-xs text-slate-400">Paste listing URL or copy & paste text directly from the page</p>
         </div>
       </div>
 
-      <form onsubmit="handleListingSubmit(event)" class="space-y-3">
-        <textarea
-          id="listingInput"
-          rows="3"
-          placeholder="E.g., https://www.zillow.com/homedetails/... or '3 Bed 2 Bath in Camas, WA 98607 for $450,000 with $75 monthly HOA'"
-          class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono resize-none"
-          required
-        ></textarea>
+      <!-- CORS Info Banner -->
+      <div class="bg-slate-950/80 border border-slate-800 p-3 rounded-xl text-[11px] text-slate-400 space-y-1">
+        <p class="text-slate-300 font-medium flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-indigo-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>How this import works:</span>
+        </p>
+        <p>
+          Listing sites like Zillow and Redfin block direct browser network scraping via Cloudflare protection. 
+          Our parser extracts location slugs from the URL and parses copied description details with instant detection.
+        </p>
+      </div>
 
-        <div class="flex justify-end gap-2 pt-2">
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Paste Listing URL or Property Text</label>
+          <textarea
+            id="listingInput"
+            rows="3"
+            oninput="parseListingInput()"
+            placeholder="E.g., https://www.zillow.com/homedetails/123-Main-St-Tampa-FL-33602/12345_zpid/ or copy-paste: '$450,000 | HOA $120/mo | Est. taxes $4,800/yr | Tampa, FL 33602'"
+            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono resize-none"
+          ></textarea>
+        </div>
+
+        <!-- Real-Time Extracted Values Preview Card -->
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Detected Fields Preview (Editable)</span>
+            </span>
+            <span id="detectedCountBadge" class="text-[10px] text-slate-500 font-mono">Ready for input</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-400 mb-1">Destination ZIP</label>
+              <input
+                id="previewZip"
+                type="text"
+                maxlength="5"
+                onfocus="this.select()"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-200 font-mono focus:ring-1 focus:ring-emerald-500"
+                placeholder="e.g. 33602"
+              />
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-400 mb-1">State</label>
+              <input
+                id="previewState"
+                type="text"
+                maxlength="2"
+                onfocus="this.select()"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-200 font-mono uppercase focus:ring-1 focus:ring-emerald-500"
+                placeholder="e.g. FL"
+              />
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-400 mb-1">City</label>
+              <input
+                id="previewCity"
+                type="text"
+                onfocus="this.select()"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-200 focus:ring-1 focus:ring-emerald-500"
+                placeholder="e.g. Tampa"
+              />
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-400 mb-1">Home Price ($)</label>
+              <input
+                id="previewPrice"
+                type="number"
+                onfocus="this.select()"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-200 font-mono focus:ring-1 focus:ring-emerald-500"
+                placeholder="e.g. 450000"
+              />
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-400 mb-1">Est. Rent ($/mo)</label>
+              <input
+                id="previewRent"
+                type="number"
+                onfocus="this.select()"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-200 font-mono focus:ring-1 focus:ring-emerald-500"
+                placeholder="e.g. 2400"
+              />
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-400 mb-1">Monthly HOA ($)</label>
+              <input
+                id="previewHoa"
+                type="number"
+                onfocus="this.select()"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-200 font-mono focus:ring-1 focus:ring-emerald-500"
+                placeholder="e.g. 120"
+              />
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-400 mb-1">Prop Tax Rate (%)</label>
+              <input
+                id="previewPropTaxRate"
+                type="number"
+                step="0.05"
+                onfocus="this.select()"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-200 font-mono focus:ring-1 focus:ring-emerald-500"
+                placeholder="e.g. 1.1"
+              />
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-400 mb-1">Insurance ($/mo)</label>
+              <input
+                id="previewInsurance"
+                type="number"
+                onfocus="this.select()"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-200 font-mono focus:ring-1 focus:ring-emerald-500"
+                placeholder="e.g. 140"
+              />
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-400 mb-1">Strategy Type</label>
+              <select
+                id="previewStrategy"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-200 focus:ring-1 focus:ring-emerald-500"
+              >
+                <option value="buy">Buy Home</option>
+                <option value="rent">Rent</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2.5 pt-2">
           <button
             type="button"
             onclick="closeListingModal()"
-            class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition"
           >
             Cancel
           </button>
           <button
-            type="submit"
-            class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition"
+            type="button"
+            onclick="applyListingToCalculator()"
+            class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-5 py-2 rounded-xl text-xs flex items-center gap-1.5 transition shadow-lg shadow-emerald-600/20 active:scale-95"
           >
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
             </svg>
-            <span>Auto-Extract & Populate</span>
+            <span>Apply to Calculator</span>
           </button>
         </div>
-      </form>
+      </div>
     </div>
   </div>
 
@@ -164,13 +280,14 @@
             type="text"
             placeholder="E.g., CA to WA Relocation"
             onfocus="this.select()"
+            ondblclick="this.select()"
             class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             required
           />
           <button
             id="saveScenarioBtn"
             type="submit"
-            class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-2 transition"
+            class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-2 transition active:scale-95 shadow-md shadow-indigo-600/20"
           >
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
@@ -228,6 +345,7 @@
                 value="92688"
                 oninput="handleZipChange('current')"
                 onfocus="this.select()"
+                ondblclick="this.select()"
                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono"
               />
             </div>
@@ -240,6 +358,7 @@
                 value="98607"
                 oninput="handleZipChange('future')"
                 onfocus="this.select()"
+                ondblclick="this.select()"
                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono"
               />
             </div>
@@ -268,6 +387,7 @@
                 value="3"
                 oninput="recalculate()"
                 onfocus="this.select()"
+                ondblclick="this.select()"
                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono"
               />
             </div>
@@ -287,6 +407,7 @@
                 value="140000"
                 oninput="recalculate()"
                 onfocus="this.select()"
+                ondblclick="this.select()"
                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 font-mono"
               />
             </div>
@@ -299,6 +420,7 @@
                 value="155000"
                 oninput="recalculate()"
                 onfocus="this.select()"
+                ondblclick="this.select()"
                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 font-mono"
               />
             </div>
@@ -313,6 +435,7 @@
                 value="350"
                 oninput="recalculate()"
                 onfocus="this.select()"
+                ondblclick="this.select()"
                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 font-mono"
               />
             </div>
@@ -324,6 +447,7 @@
                 value="380"
                 oninput="recalculate()"
                 onfocus="this.select()"
+                ondblclick="this.select()"
                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 font-mono"
               />
             </div>
@@ -340,6 +464,7 @@
                 max="100"
                 oninput="recalculate()"
                 onfocus="this.select()"
+                ondblclick="this.select()"
                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 font-mono"
               />
             </div>
@@ -353,6 +478,7 @@
                 max="100"
                 oninput="recalculate()"
                 onfocus="this.select()"
+                ondblclick="this.select()"
                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 font-mono"
               />
             </div>
@@ -367,6 +493,7 @@
                 value="150000"
                 oninput="recalculate()"
                 onfocus="this.select()"
+                ondblclick="this.select()"
                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2 py-1.5 text-xs text-slate-200 font-mono"
               />
             </div>
@@ -378,6 +505,7 @@
                 value="50000"
                 oninput="recalculate()"
                 onfocus="this.select()"
+                ondblclick="this.select()"
                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2 py-1.5 text-xs text-slate-200 font-mono"
               />
             </div>
@@ -390,6 +518,7 @@
                 value="4.5"
                 oninput="recalculate()"
                 onfocus="this.select()"
+                ondblclick="this.select()"
                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2 py-1.5 text-xs text-slate-200 font-mono"
               />
             </div>
@@ -408,6 +537,7 @@
                 value="2800"
                 oninput="recalculate()"
                 onfocus="this.select()"
+                ondblclick="this.select()"
                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 font-mono"
               />
             </div>
@@ -445,6 +575,7 @@
                   value="450000"
                   oninput="recalculate()"
                   onfocus="this.select()"
+                  ondblclick="this.select()"
                   class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-slate-200 font-mono"
                 />
               </div>
@@ -457,6 +588,7 @@
                   value="6.25"
                   oninput="recalculate()"
                   onfocus="this.select()"
+                  ondblclick="this.select()"
                   class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-slate-200 font-mono"
                 />
               </div>
@@ -469,6 +601,7 @@
                   value="1.05"
                   oninput="recalculate()"
                   onfocus="this.select()"
+                  ondblclick="this.select()"
                   class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-slate-200 font-mono"
                 />
               </div>
@@ -483,6 +616,7 @@
                   value="140"
                   oninput="recalculate()"
                   onfocus="this.select()"
+                  ondblclick="this.select()"
                   class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-slate-200 font-mono"
                 />
               </div>
@@ -494,6 +628,7 @@
                   value="75"
                   oninput="recalculate()"
                   onfocus="this.select()"
+                  ondblclick="this.select()"
                   class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-slate-200 font-mono"
                 />
               </div>
@@ -509,6 +644,7 @@
               value="2400"
               oninput="recalculate()"
               onfocus="this.select()"
+              ondblclick="this.select()"
               class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 font-mono"
             />
           </div>
@@ -527,6 +663,7 @@
                 value="5.2"
                 oninput="recalculate()"
                 onfocus="this.select()"
+                ondblclick="this.select()"
                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 font-mono"
               />
             </div>
@@ -539,6 +676,7 @@
                 value="0.0"
                 oninput="recalculate()"
                 onfocus="this.select()"
+                ondblclick="this.select()"
                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 font-mono"
               />
             </div>
@@ -576,7 +714,7 @@
         </div>
       </div>
 
-      <!-- Tabbed Views -->
+      <!-- Tabbed Views (Summary, Tax Breakdown, Formulas - NO test suite tab) -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden flex flex-col flex-1">
         <div class="flex border-b border-slate-800 bg-slate-950 text-xs">
           <button
@@ -585,7 +723,7 @@
             onclick="switchTab('summary')"
             class="flex-1 py-2.5 text-center font-semibold border-b-2 tab-active transition"
           >
-            Summary
+            Categorized Specs
           </button>
           <button
             id="tabDetailsBtn"
@@ -596,20 +734,17 @@
             Tax Breakdown
           </button>
           <button
-            id="tabTestsBtn"
+            id="tabFormulasBtn"
             type="button"
-            onclick="switchTab('tests')"
-            class="flex-1 py-2.5 text-center font-semibold border-b-2 tab-inactive flex items-center justify-center gap-1 transition"
+            onclick="switchTab('formulas')"
+            class="flex-1 py-2.5 text-center font-semibold border-b-2 tab-inactive transition"
           >
-            <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>Test Cases</span>
+            Formulas
           </button>
         </div>
 
         <div class="p-4 flex-1 overflow-y-auto max-h-[380px] space-y-4">
-          <!-- Tab 1: Summary -->
+          <!-- Tab 1: Categorized Specs (Summary) -->
           <div id="tabContentSummary" class="space-y-2 text-xs">
             <div class="flex justify-between items-center bg-slate-950 p-2.5 rounded-xl border border-slate-800">
               <div>
@@ -658,13 +793,14 @@
 
           <!-- Tab 2: Tax Breakdown -->
           <div id="tabContentDetails" class="space-y-3 hidden">
+            <!-- Deduction Strategy Optimizer -->
             <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5">
               <div class="flex justify-between items-center text-xs">
                 <span class="font-bold text-indigo-400 flex items-center gap-1">
                   <svg class="w-3.5 h-3.5 text-amber-300" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                   </svg>
-                  <span>Deduction Engine</span>
+                  <span>Deduction Strategy</span>
                 </span>
                 <span id="deductionMethodBadge" class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">
                   Standard Selected
@@ -673,6 +809,25 @@
               <p id="deductionMethodDescription" class="text-[10px] text-slate-400"></p>
             </div>
 
+            <!-- Child Tax Credit Card -->
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-bold text-indigo-400 flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                  <span>2026 Child Tax Write-Off</span>
+                </span>
+                <span id="ctcBadge" class="text-[10px] px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-semibold font-mono">
+                  $6,600 Credit
+                </span>
+              </div>
+              <p id="ctcDescription" class="text-[10px] text-slate-400">
+                Calculated at $2,200 per child base with federal income phaseout protection.
+              </p>
+            </div>
+
+            <!-- Tax Table -->
             <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
               <h4 class="text-xs font-bold text-slate-300 mb-2">Annual Tax Burden</h4>
               <table class="w-full text-xs text-left">
@@ -683,7 +838,7 @@
                     <td id="taxFedFuture" class="py-1 text-right text-rose-400">$0</td>
                   </tr>
                   <tr>
-                    <td id="taxStateLabel" class="py-1 text-slate-400 font-sans">State Tax (CA vs WA)</td>
+                    <td id="taxStateLabel" class="py-1 text-slate-400 font-sans">State Tax</td>
                     <td id="taxStateCurrent" class="py-1 text-right text-rose-400">$0</td>
                     <td id="taxStateFuture" class="py-1 text-right text-rose-400">$0</td>
                   </tr>
@@ -702,32 +857,36 @@
             </div>
           </div>
 
-          <!-- Tab 3: Self-Executing Test Cases -->
-          <div id="tabContentTests" class="space-y-3 hidden">
-            <div class="flex items-center justify-between">
-              <div>
-                <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
-                  <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Automated Test Suite</span>
-                </h4>
-                <p class="text-[10px] text-slate-400">Live regression unit tests verifying math engines</p>
+          <!-- Tab 3: Formulas -->
+          <div id="tabContentFormulas" class="space-y-3 hidden text-xs">
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5">
+              <h4 class="font-bold text-indigo-400">Monthly Cash Flow Differential</h4>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Calculates the exact net delta between destination disposable income and current disposable income:
+              </p>
+              <div class="p-2 bg-slate-900 rounded font-mono text-[10px] text-indigo-300">
+                ΔCF = CashFlow_Future − CashFlow_Current
               </div>
-              <button
-                type="button"
-                onclick="runTestSuite()"
-                class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-semibold px-2 py-1 rounded flex items-center gap-1 transition"
-              >
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                <span>Run Tests</span>
-              </button>
             </div>
 
-            <div id="testResultsList" class="space-y-2">
-              <!-- Live test assertions injected here -->
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5">
+              <h4 class="font-bold text-indigo-400">Pre-Tax Deductions & FICA Rules</h4>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Section 125 health insurance reduces Federal, State, and FICA wage bases. 401(k) contributions reduce Federal and State income taxes up to the 2026 cap ($24,500).
+              </p>
+              <div class="p-2 bg-slate-900 rounded font-mono text-[10px] text-indigo-300">
+                Taxable Federal = Gross − Deductions − Health − 401(k)
+              </div>
+            </div>
+
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5">
+              <h4 class="font-bold text-indigo-400">Itemized vs Standard Comparison</h4>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Year-1 mortgage interest (up to $750k principal) + state property and income taxes (subject to the $10,000 SALT cap) are evaluated against the 2026 Standard Deduction.
+              </p>
+              <div class="p-2 bg-slate-900 rounded font-mono text-[10px] text-indigo-300">
+                Deduction = max(Standard, MortgageInterest + min($10,000, SALT))
+              </div>
             </div>
           </div>
         </div>
@@ -747,14 +906,13 @@
     </div>
   </footer>
 
-  <!-- Application Logic & Calculation Scripts -->
+  <!-- Application Logic & Calculation Engine -->
   <script>
-    // State storage
     let currentHousingType = 'buy';
     let selectedScenarioId = '';
     let scenarios = [];
 
-    // Fast ZIP to State / City dictionary
+    // ZIP to State / City Dictionary
     const zipMap = {
       "92688": { state: "CA", city: "Rancho Santa Margarita" },
       "98607": { state: "WA", city: "Camas" },
@@ -845,24 +1003,23 @@
       const currentEffectiveStateTax = Number(document.getElementById('currentEffectiveStateTax').value) || 0;
       const futureEffectiveStateTax = Number(document.getElementById('futureEffectiveStateTax').value) || 0;
 
-      // Annualized pre-tax deductions
       const currentHealthAnnual = currentHealthIns * 12;
       const futureHealthAnnual = futureHealthIns * 12;
 
-      // 401k capped at 2026 limit of $24,500
+      // 401(k) capped at 2026 employee elective limit ($24,500)
       const current401kAnnual = Math.min(24500, currentIncome * (current401kPct / 100));
       const future401kAnnual = Math.min(24500, futureIncome * (future401kPct / 100));
 
       const standardDeduction = filingStatus === 'joint' ? 31500 : filingStatus === 'hoh' ? 23625 : 15750;
 
-      // State Tax Calculations
+      // State Income Taxes
       const currentStateTaxable = Math.max(0, currentIncome - currentHealthAnnual - current401kAnnual);
       const currentStateTax = (currentStateTaxable * currentEffectiveStateTax) / 100;
 
       const futureStateTaxable = Math.max(0, futureIncome - futureHealthAnnual - future401kAnnual);
       const futureStateTax = (futureStateTaxable * futureEffectiveStateTax) / 100;
 
-      // Deduction Strategy Optimization
+      // Deduction Strategy Evaluation
       let futureMortgageInterestAnnual = 0;
       let futurePropTaxAnnual = 0;
       if (currentHousingType === 'buy') {
@@ -876,10 +1033,9 @@
       const futureItemizedDeduction = futureSaltDeduction + futureMortgageInterestAnnual;
       const futureIsItemized = futureItemizedDeduction > standardDeduction;
       const futureDeductionUsed = Math.max(standardDeduction, futureItemizedDeduction);
-
       const currentDeductionUsed = standardDeduction;
 
-      // Federal Income Tax
+      // 2026 Progressive Federal Income Tax Bracket Engine
       function calcFed(inc, healthAnn, retAnn, dedUsed) {
         const taxable = Math.max(0, inc - dedUsed - healthAnn - retAnn);
         const brackets = filingStatus === 'joint' ? [
@@ -914,13 +1070,11 @@
         return tax;
       }
 
-      // FICA calculation (Health insurance reduces FICA wage base; 401k does not)
       function calcFica(inc, healthAnn) {
         const wage = Math.max(0, inc - healthAnn);
         return (Math.min(wage, 184500) * 0.062) + (wage * 0.0145);
       }
 
-      // Child tax credit
       function calcCtc(agi) {
         let credit = numKids * 2200;
         const thresh = filingStatus === 'joint' ? 400000 : 200000;
@@ -941,13 +1095,13 @@
       const finalFutureFed = Math.max(0, futureFedBefore - futureCtc);
       const futureFica = calcFica(futureIncome, futureHealthAnnual);
 
-      // APY yield and opportunity cost
+      // APY Yield & Opportunity Cost Calculations
       const currentMonthlyYield = (currentSavings * (savingsApy / 100)) / 12;
       const remainingSavings = Math.max(0, currentSavings - downpayment);
       const futureMonthlyYield = (remainingSavings * (savingsApy / 100)) / 12;
       const lostMonthlyInterest = currentMonthlyYield - futureMonthlyYield;
 
-      // Housing costs
+      // Housing Cost Model
       let futureHousingCost = 0;
       if (currentHousingType === 'buy') {
         const principal = Math.max(0, futureHomePrice - downpayment);
@@ -960,12 +1114,10 @@
         futureHousingCost = futureMonthlyRent;
       }
 
-      // Cost of living adjustments
       const colBaseline = 4200;
       const currentColCost = colBaseline * 1.25;
       const futureColCost = colBaseline * 0.96;
 
-      // Take-home cash flow computations
       const currentTotalTaxes = finalCurrentFed + currentStateTax + currentFica;
       const futureTotalTaxes = finalFutureFed + futureStateTax + futureFica;
 
@@ -990,7 +1142,7 @@
       document.getElementById('annualSavingsDisplay').textContent = `${diffSign}$${Math.round(annualDiff).toLocaleString()}`;
       document.getElementById('lostInterestDisplay').textContent = `-$${Math.round(lostMonthlyInterest).toLocaleString()}`;
 
-      // Update summary tab values
+      // Update Categorized Specs
       document.getElementById('sumCurrentGross').textContent = `C: $${Math.round((currentIncome / 12) + currentMonthlyYield).toLocaleString()}`;
       document.getElementById('sumFutureGross').textContent = `F: $${Math.round((futureIncome / 12) + futureMonthlyYield).toLocaleString()}`;
 
@@ -1003,7 +1155,7 @@
       document.getElementById('sumCurrentHousing').textContent = `C: -$${Math.round(currentHousingCost).toLocaleString()}`;
       document.getElementById('sumFutureHousing').textContent = `F: -$${Math.round(futureHousingCost).toLocaleString()}`;
 
-      // Update tax breakdown values
+      // Update Tax Breakdown
       const curState = window.currentDetectedState || resolveZip(document.getElementById('currentZip').value).state;
       const futState = window.futureDetectedState || resolveZip(document.getElementById('futureZip').value).state;
       document.getElementById('taxStateLabel').textContent = `State Tax (${curState} vs ${futState})`;
@@ -1017,31 +1169,35 @@
       document.getElementById('taxTotalCurrent').textContent = `$${Math.round(currentTotalTaxes).toLocaleString()}`;
       document.getElementById('taxTotalFuture').textContent = `$${Math.round(futureTotalTaxes).toLocaleString()}`;
 
-      // Update deduction strategy card
+      // Update Deduction Strategy Badge
       const badge = document.getElementById('deductionMethodBadge');
       const desc = document.getElementById('deductionMethodDescription');
       if (futureIsItemized) {
         badge.textContent = "Itemized Selected";
         badge.className = "text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold";
-        desc.textContent = `Itemized deductions ($${Math.round(futureItemizedDeduction).toLocaleString()}) exceed Standard ($${standardDeduction.toLocaleString()}), maximizing your tax savings.`;
+        desc.textContent = `Itemized deductions ($${Math.round(futureItemizedDeduction).toLocaleString()}) exceed the 2026 Standard Deduction ($${standardDeduction.toLocaleString()}), maximizing your write-offs.`;
       } else {
         badge.textContent = "Standard Selected";
         badge.className = "text-[10px] px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-semibold";
         desc.textContent = `Standard deduction ($${standardDeduction.toLocaleString()}) provides greater tax relief than itemizing ($${Math.round(futureItemizedDeduction).toLocaleString()}).`;
       }
+
+      // Update CTC Summary Badge
+      document.getElementById('ctcBadge').textContent = `$${(numKids * 2200).toLocaleString()} Credit`;
     }
 
+    // Tab Switching (Only 3 tabs now)
     function switchTab(tabId) {
       const summaryBtn = document.getElementById('tabSummaryBtn');
       const detailsBtn = document.getElementById('tabDetailsBtn');
-      const testsBtn = document.getElementById('tabTestsBtn');
+      const formulasBtn = document.getElementById('tabFormulasBtn');
 
       const summaryContent = document.getElementById('tabContentSummary');
       const detailsContent = document.getElementById('tabContentDetails');
-      const testsContent = document.getElementById('tabContentTests');
+      const formulasContent = document.getElementById('tabContentFormulas');
 
-      [summaryBtn, detailsBtn, testsBtn].forEach(b => b.className = "flex-1 py-2.5 text-center font-semibold border-b-2 tab-inactive transition");
-      [summaryContent, detailsContent, testsContent].forEach(c => c.classList.add('hidden'));
+      [summaryBtn, detailsBtn, formulasBtn].forEach(b => b.className = "flex-1 py-2.5 text-center font-semibold border-b-2 tab-inactive transition");
+      [summaryContent, detailsContent, formulasContent].forEach(c => c.classList.add('hidden'));
 
       if (tabId === 'summary') {
         summaryBtn.className = "flex-1 py-2.5 text-center font-semibold border-b-2 tab-active transition";
@@ -1049,13 +1205,13 @@
       } else if (tabId === 'details') {
         detailsBtn.className = "flex-1 py-2.5 text-center font-semibold border-b-2 tab-active transition";
         detailsContent.classList.remove('hidden');
-      } else if (tabId === 'tests') {
-        testsBtn.className = "flex-1 py-2.5 text-center font-semibold border-b-2 tab-active transition";
-        testsContent.classList.remove('hidden');
-        runTestSuite();
+      } else if (tabId === 'formulas') {
+        formulasBtn.className = "flex-1 py-2.5 text-center font-semibold border-b-2 tab-active transition";
+        formulasContent.classList.remove('hidden');
       }
     }
 
+    // Modal Display Handlers
     function openListingModal() {
       document.getElementById('listingModal').classList.remove('hidden');
       document.getElementById('listingModal').classList.add('flex');
@@ -1067,35 +1223,161 @@
       document.getElementById('listingInput').value = '';
     }
 
-    function handleListingSubmit(e) {
-      e.preventDefault();
-      const text = document.getElementById('listingInput').value.trim();
-      if (!text) return;
+    // Intelligent Listing Parser (URL slug + Copied Text Heuristics)
+    function parseListingInput() {
+      const text = document.getElementById('listingInput').value;
+      if (!text.trim()) {
+        document.getElementById('detectedCountBadge').textContent = "Ready for input";
+        return;
+      }
 
-      const zipMatch = text.match(/\b\d{5}\b/);
-      if (zipMatch) {
-        document.getElementById('futureZip').value = zipMatch[0];
+      let detectedZip = '';
+      let detectedState = '';
+      let detectedCity = '';
+      let detectedPrice = '';
+      let detectedRent = '';
+      let detectedHoa = '';
+      let detectedPropTax = '';
+      let detectedInsurance = '';
+      let strategy = 'buy';
+      let count = 0;
+
+      // 1. Zillow & Redfin URL slug extraction
+      // e.g., zillow.com/homedetails/123-Main-St-Tampa-FL-33602/12345_zpid/
+      // or redfin.com/WA/Camas/456-Pine-Rd-98607/home/12345
+      const urlSlugMatch = text.match(/(?:homedetails|homes-for-sale|property|home)\/.*?[/-]([A-Za-z]+)[/-]([A-Za-z]{2})[/-](\d{5})/i) ||
+                           text.match(/([A-Za-z]+)[-_\s]+([A-Za-z]{2})[-_\s]+(\d{5})/i);
+      
+      if (urlSlugMatch) {
+        detectedCity = urlSlugMatch[1].replace(/[-_]/g, ' ');
+        detectedState = urlSlugMatch[2].toUpperCase();
+        detectedZip = urlSlugMatch[3];
+      }
+
+      // Standalone ZIP extraction if not in slug
+      if (!detectedZip) {
+        const zipM = text.match(/\b\d{5}\b/);
+        if (zipM) detectedZip = zipM[0];
+      }
+
+      // Standalone 2-letter State extraction
+      if (!detectedState) {
+        const stateM = text.match(/\b([A-Z]{2})\b/);
+        if (stateM && stateM[1] !== 'US') detectedState = stateM[1];
+      }
+
+      // 2. Price Detection ($XXX,XXX or $X.XM)
+      const priceM = text.match(/(?:price|list price|for sale|\$)\s*:?\s*\$?\s*([\d,]+(?:\.\d+)?)\s*([mMkK]|million)?/i) ||
+                     text.match(/\$([0-9]{1,3}(?:,[0-9]{3})+)/);
+      if (priceM) {
+        let raw = priceM[1].replace(/,/g, '');
+        let multiplier = priceM[2] ? priceM[2].toLowerCase() : '';
+        let num = parseFloat(raw);
+        if (multiplier === 'm' || multiplier === 'million') num *= 1000000;
+        else if (multiplier === 'k') num *= 1000;
+
+        if (num >= 35000) {
+          detectedPrice = Math.round(num);
+          strategy = 'buy';
+        } else if (num >= 600 && num < 20000) {
+          detectedRent = Math.round(num);
+          strategy = 'rent';
+        }
+      }
+
+      // 3. Rent Detection
+      const rentM = text.match(/(?:rent|zestimate rent|rent zestimate|monthly rent)\s*:?\s*\$?\s*([\d,]+)/i) ||
+                    text.match(/\$([0-9]{1,3}(?:,[0-9]{3})?)\s*(?:\/mo|\/month|per month)/i);
+      if (rentM) {
+        const r = parseInt(rentM[1].replace(/,/g, ''), 10);
+        if (r >= 600 && r <= 20000) detectedRent = r;
+      }
+
+      // 4. HOA Dues Detection
+      const hoaM = text.match(/hoa\s*(?:fee|dues)?\s*:?\s*\$?([\d,]+)/i) ||
+                   text.match(/\$([0-9]{1,3}(?:,[0-9]{3})?)\s*(?:\/mo\s*hoa|hoa)/i);
+      if (hoaM) {
+        const h = parseInt(hoaM[1].replace(/,/g, ''), 10);
+        if (h < 5000) detectedHoa = h;
+      }
+
+      // 5. Property Tax Rate (%) or Annual Taxes ($)
+      const taxRateM = text.match(/tax\s*(?:rate)?\s*:?\s*(\d+(?:\.\d+)?)\s*%/i);
+      if (taxRateM) {
+        detectedPropTax = parseFloat(taxRateM[1]);
+      } else {
+        const annualTaxM = text.match(/(?:property tax|annual tax|taxes)\s*:?\s*\$?([\d,]+)/i);
+        if (annualTaxM && detectedPrice) {
+          const annualTax = parseInt(annualTaxM[1].replace(/,/g, ''), 10);
+          detectedPropTax = ((annualTax / detectedPrice) * 100).toFixed(2);
+        }
+      }
+
+      // 6. Homeowners Insurance ($/mo)
+      const insM = text.match(/(?:home insurance|insurance|homeowners insurance)\s*:?\s*\$?([\d,]+)/i);
+      if (insM) {
+        const ins = parseInt(insM[1].replace(/,/g, ''), 10);
+        if (ins < 2000) detectedInsurance = ins;
+      }
+
+      // Populate Preview Fields
+      if (detectedZip) { document.getElementById('previewZip').value = detectedZip; count++; }
+      if (detectedState) { document.getElementById('previewState').value = detectedState; count++; }
+      if (detectedCity) { document.getElementById('previewCity').value = detectedCity; count++; }
+      if (detectedPrice) { document.getElementById('previewPrice').value = detectedPrice; count++; }
+      if (detectedRent) { document.getElementById('previewRent').value = detectedRent; count++; }
+      if (detectedHoa) { document.getElementById('previewHoa').value = detectedHoa; count++; }
+      if (detectedPropTax) { document.getElementById('previewPropTaxRate').value = detectedPropTax; count++; }
+      if (detectedInsurance) { document.getElementById('previewInsurance').value = detectedInsurance; count++; }
+      document.getElementById('previewStrategy').value = strategy;
+
+      document.getElementById('detectedCountBadge').textContent = `${count} fields detected`;
+    }
+
+    // Apply Verified Preview to Main Inputs
+    function applyListingToCalculator() {
+      const zip = document.getElementById('previewZip').value.trim();
+      const state = document.getElementById('previewState').value.trim();
+      const price = document.getElementById('previewPrice').value;
+      const rent = document.getElementById('previewRent').value;
+      const hoa = document.getElementById('previewHoa').value;
+      const propTax = document.getElementById('previewPropTaxRate').value;
+      const ins = document.getElementById('previewInsurance').value;
+      const strat = document.getElementById('previewStrategy').value;
+
+      if (zip) {
+        document.getElementById('futureZip').value = zip;
         handleZipChange('future');
       }
 
-      const priceMatches = text.match(/\$([0-9]{1,3}(?:,[0-9]{3})+)/g);
-      if (priceMatches && priceMatches.length > 0) {
-        const numbers = priceMatches.map(m => parseInt(m.replace(/[\$,]/g, ''), 10));
-        const bigPrices = numbers.filter(n => n >= 50000);
-        if (bigPrices.length > 0) {
-          document.getElementById('futureHomePrice').value = bigPrices[0];
-          setHousingType('buy');
-        }
-        const rentCandidates = numbers.filter(n => n >= 800 && n <= 15000);
-        if (rentCandidates.length > 0 && bigPrices.length === 0) {
-          document.getElementById('futureMonthlyRent').value = rentCandidates[0];
-          setHousingType('rent');
-        }
+      if (state) {
+        window.futureDetectedState = state.toUpperCase();
       }
 
+      if (price) {
+        document.getElementById('futureHomePrice').value = price;
+      }
+
+      if (rent) {
+        document.getElementById('futureMonthlyRent').value = rent;
+      }
+
+      if (hoa) {
+        document.getElementById('futureMonthlyHoa').value = hoa;
+      }
+
+      if (propTax) {
+        document.getElementById('futurePropTaxRate').value = propTax;
+      }
+
+      if (ins) {
+        document.getElementById('futureMonthlyInsurance').value = ins;
+      }
+
+      setHousingType(strat);
       closeListingModal();
       recalculate();
-      showToast("Listing values auto-populated!", "success");
+      showToast("Listing values applied to calculator!", "success");
     }
 
     function showToast(msg, type) {
@@ -1111,6 +1393,7 @@
       setTimeout(() => toast.classList.add('hidden'), 4000);
     }
 
+    // Scenario Persistence Handlers
     function handleSaveScenario(e) {
       e.preventDefault();
       const name = document.getElementById('scenarioNameInput').value.trim();
@@ -1165,7 +1448,7 @@
           <button
             type="button"
             onclick="deleteScenario('${sc.id}', event)"
-            class="text-slate-500 hover:text-rose-400 p-1"
+            class="text-slate-500 hover:text-rose-400 p-1 rounded hover:bg-slate-800 transition"
           >
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -1209,80 +1492,7 @@
       showToast("Scenario deleted", "info");
     }
 
-    // Automated regression test suite
-    function runTestSuite() {
-      const tests = [
-        {
-          name: "Mortgage P&I ($400k @ 6.0%, 30yr)",
-          expected: "$2,398.20/mo",
-          run: () => {
-            const p = 400000, r = 0.06 / 12, n = 360;
-            const pi = p * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-            return { pass: Math.abs(pi - 2398.20) < 1.0, got: `$${pi.toFixed(2)}/mo` };
-          }
-        },
-        {
-          name: "APY Lost Interest ($60k downpayment @ 4.0% APY)",
-          expected: "$200.00/mo",
-          run: () => {
-            const lost = (60000 * 0.04) / 12;
-            return { pass: Math.abs(lost - 200.00) < 0.01, got: `$${lost.toFixed(2)}/mo` };
-          }
-        },
-        {
-          name: "Child Tax Credit (3 kids @ $2,200/child)",
-          expected: "$6,600",
-          run: () => {
-            const ctc = 3 * 2200;
-            return { pass: ctc === 6600, got: `$${ctc.toLocaleString()}` };
-          }
-        },
-        {
-          name: "Deduction Optimizer (Itemized > Standard $31,500)",
-          expected: "Itemized Selected ($45,000)",
-          run: () => {
-            const itemized = 35000 + 10000;
-            const pass = itemized > 31500;
-            return { pass, got: pass ? `Itemized Selected ($${itemized.toLocaleString()})` : "Standard" };
-          }
-        },
-        {
-          name: "2026 401(k) Employee Cap ($24,500 Max Limit)",
-          expected: "401(k) capped at $24,500",
-          run: () => {
-            const income = 100000, pct = 30; // 30% would be 30,000
-            const capped = Math.min(24500, income * (pct / 100));
-            return { pass: capped === 24500, got: `401(k) capped at $${capped.toLocaleString()}` };
-          }
-        }
-      ];
-
-      const container = document.getElementById('testResultsList');
-      container.innerHTML = `
-        <div class="flex items-center justify-between text-[10px] text-slate-500 bg-slate-950 p-2 rounded-lg border border-slate-850">
-          <span>Status: <strong class="text-emerald-400 font-semibold">All Tests Passed (5/5)</strong></span>
-          <span>Verified Math Engine</span>
-        </div>
-      ` + tests.map(t => {
-        const res = t.run();
-        return `
-          <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 space-y-1">
-            <div class="flex items-center justify-between">
-              <span class="text-[11px] font-semibold text-slate-200">${t.name}</span>
-              <span class="text-[9px] bg-emerald-500/10 text-emerald-400 font-bold px-1.5 py-0.5 rounded border border-emerald-500/20 font-mono">
-                PASS
-              </span>
-            </div>
-            <div class="text-[10px] font-mono text-slate-400 flex justify-between">
-              <span>Expected: ${t.expected}</span>
-              <span class="text-slate-300">Got: ${res.got}</span>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    // Initialize on window load
+    // Initialize application on window load
     window.onload = function() {
       try {
         const stored = localStorage.getItem('relosave_local_scenarios');
